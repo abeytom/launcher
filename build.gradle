@@ -1,0 +1,57 @@
+plugins{
+    id "com.github.cr0.macappbundle" version "3.1.0"
+}
+
+
+sourceCompatibility = 1.6
+version = "build_"+new Date().format('yyyy-MM-dd_HH-mm-ss')
+
+jar{
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest{
+        attributes 'Main-Class' : 'org.atom.launcher.ui.Launcher'
+    }
+}
+
+configurations {
+    sshAntTask
+}
+
+macAppBundle {
+    agent = false
+    appName = "Launcher"
+    archiveName = "Launcher"
+    mainClassName = "org.atom.launcher.ui.Launcher"
+    icon = "src/main/resources/icons/launcher.icns"
+    javaProperties.put("file.encoding", "utf-8")
+    javaProperties.put("apple.laf.useScreenMenuBar", "true")
+    javaXProperties.add("ms128m")
+    javaXProperties.add("mx128m")
+    bundleExtras.put("NSHighResolutionCapable", "true")
+    version = project.version
+    shortVersion = project.version
+    bundleJRE = false
+    bundleExecutable = "Launcher"
+    bundleIdentifier = "com.atom.launcher"
+    bundleCopyright = "Abey Tom"
+    appCategory = "atom.tools"
+}
+
+repositories{
+    mavenCentral()
+}
+
+dependencies{
+    compile group:'org.jdesktop', name:'appframework', version:'1.0.3'
+    compile group:'org.jdesktop', name:'swing-worker', version:'1.1'
+    compile group:'org.swinglabs', name:'swing-layout', version:'1.0.3'
+    compile group:'log4j', name:'log4j', version:'1.2.17'
+    testCompile group:'junit', name:'junit', version:'4.8+'
+}
+
+task zipApp(dependsOn:createApp, type:Zip){
+    project.ext.archiveName = "$macAppBundle.appName-$project.version"+".app.zip"
+    archiveName = project.ext.archiveName
+    from "$buildDir/macApp"
+}
+
